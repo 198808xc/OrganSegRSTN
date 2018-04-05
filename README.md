@@ -150,9 +150,11 @@ Please follow these steps to reproduce our results on the NIH pancreas segmentat
     Put $CAFFE_PATH under $DATA_PATH/libs/
     Put images/ under $DATA_PATH/
     Put labels/ under $DATA_PATH/
-    Download [this scratch model](https://nothing) and put it under $DATA_PATH/models/pretrained/
+    Download the scratch model below and put it under $DATA_PATH/models/pretrained/
 
-    NOTE: If you use other path(s), please modify the variable(s) in run.sh accordingly.
+[The scratch model](https://nothing) - see the explanations in 4.2.3.
+
+NOTE: If you use other path(s), please modify the variable(s) in run.sh accordingly.
 
 
 #### 4.2 Initialization (requires: 4.1)
