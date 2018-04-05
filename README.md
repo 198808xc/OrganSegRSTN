@@ -211,6 +211,17 @@ You can run all the following modules with **one** execution!
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 
 It is very important to provide a reasonable initialization for our model.
 In the previous step of data preparation, we provide a scratch model for the NIH dataset,
