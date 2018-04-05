@@ -150,6 +150,7 @@ Please follow these steps to reproduce our results on the NIH pancreas segmentat
     Put $CAFFE_PATH under $DATA_PATH/libs/
     Put images/ under $DATA_PATH/
     Put labels/ under $DATA_PATH/
+    Download [this scratch model](https://nothing) and put it under $DATA_PATH/models/pretrained/
 
     NOTE: If you use other path(s), please modify the variable(s) in run.sh accordingly.
 
@@ -176,9 +177,9 @@ Please follow these steps to reproduce our results on the NIH pancreas segmentat
         as well as the "is_organ" function in utils.py to define your mapping function flexibly.
 
 
-![](https://github.com/198808xc/OrganSegC2F/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 **LAZY MODE!**
-![](https://github.com/198808xc/OrganSegC2F/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 
 You can run all the following modules with **one** execution!
   * a) Enable everything (except initialization) in the beginning part.
@@ -202,6 +203,34 @@ You can run all the following modules with **one** execution!
         each 20 iterations cost ~10s on a Titan-X Pascal GPU, or ~8s on a Titan-Xp GPU.
         As described in the paper, we need ~80K iterations, which take less than 9 GPU-hours.
     After the training process, the log file will be copied to the snapshot directory.
+
+###### 4.3.3 Important notes on initialization.
+
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
+
+It is very important to provide a reasonable initialization for our model.
+In the previous step of data preparation, we provide a scratch model for the NIH dataset,
+in which both the coarse and fine stages are initialized using the weights of an FCN-8s model
+(please refer to the [FCN project](https://github.com/shelhamer/fcn.berkeleyvision.org)).
+This model was pre-trained on PASCALVOC, and all upsampling weights are intialized as 0.
+
+The most important thing is to initialize three layers related to saliency transformation,
+which are named "score", "score-R" and "saliency" in our prototxts.
+In our solution, we use a Xavier filler to fill in the weights of these layers,
+and use an all-0 bias vector for "score" and "score-R", and an all-1 vector for "saliency".
+In **90% of time**, the randomized weights lead to a successful convergence.
+
+We experimented several random initilizations, and observed their behaviors in the first 4K iterations.
+We chose the best one and provide it as the previous scratch file, which never fails to converge.
+
+If you are experimenting on other **CT datasets**, we strongly recommend you to use a pre-trained model,
+which was tuned using all 82 training samples for pancreas segmentation on NIH (X|Y|Z data are mixed).
+This model can be found [here](http://nothing).
+Of course, do not use it to evaluate any NIH data, as all data have been used for training.
 
 
 #### 4.4 Joint training (requires: 4.3)
