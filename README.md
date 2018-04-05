@@ -214,20 +214,13 @@ You can run all the following modules with **one** execution!
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
-![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 
 It is very important to provide a reasonable initialization for our model.
 In the previous step of data preparation, we provide a scratch model for the NIH dataset,
 in which both the coarse and fine stages are initialized using the weights of an FCN-8s model
 (please refer to the [FCN project](https://github.com/shelhamer/fcn.berkeleyvision.org)).
-This model was pre-trained on PASCALVOC, and all upsampling weights are intialized as 0.
+This model was pre-trained on PASCALVOC.
+We initialized all upsampling weights to be 0, as the number of channels does not align with that in PASCAL.
 
 The most important thing is to initialize three layers related to saliency transformation,
 which are named "score", "score-R" and "saliency" in our prototxts.
