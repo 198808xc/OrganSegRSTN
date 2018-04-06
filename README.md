@@ -34,9 +34,9 @@ The authors and their institution (JHU/JHMI) preserve the copyright and all lega
 ## 1. Introduction
 
 OrganSegRSTN is a code package for our paper:
-  **Yuyin Zhou**, Lingxi Xie, Wei Shen, Yan Wang, Elliot K. Fishman, Alan L. Yuille,
-    "A Fixed-Point Model for Pancreas Segmentation in Abdominal CT Scans",
-    in International Conference on MICCAI, Quebec City, Quebec, Canada, 2017.
+  **Qihang Yu**, Lingxi Xie, Yan Wang, Yuyin Zhou, Elliot K. Fishman, Alan L. Yuille,
+    "Recurrent Saliency Transformation Network: Incorporating Multi-Stage Visual Cues for Small Organ Segmentation",
+    in IEEE Conference on CVPR, Salt Lake City, Utah, USA, 2018.
 
 OrganSegRSTN is a segmentation framework designed for 3D volumes.
     It was originally designed for segmenting abdominal organs in CT scans,
