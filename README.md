@@ -1,5 +1,5 @@
 # OrganSegRSTN: an end-to-end coarse-to-fine organ segmentation framework
-version 1.0 - Apr 5 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
+version 1.0 - Apr 20 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
 
 #### **Qihang Yu and Yuyin Zhou are the main contributors to this repository.**
 
@@ -59,7 +59,7 @@ It is highly recommended to use one or more modern GPUs for computation.
 
 | Folder/File                | Description                                          |
 |:-------------------------- |:---------------------------------------------------- |
-| `README.txt`               | the README file                                      |
+| `README.md`                | the README file                                      |
 |                            |                                                      |
 | **DATA2NPY/**              | codes to transfer the NIH dataset into NPY format    |
 | `dicom2npy.py`             | transferring image data (DICOM) into NPY format      |
