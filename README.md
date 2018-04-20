@@ -69,7 +69,7 @@ It is highly recommended to use one or more modern GPUs for computation.
 | `dice_loss_layer.hpp`      | the header file                                      |
 | `dice_loss_layer.cpp`      | the CPU implementation                               |
 |                            |                                                      |
-| **OrganSegC2F/**           | primary codes of OrganSegC2F                         |
+| **OrganSegRSTN/**          | primary codes of OrganSegRSTN                        |
 | `coarse2fine_testing.py`   | the coarse-to-fine testing process                   |
 | `coarse_fusion.py`         | the coarse-scaled fusion process                     |
 | `coarse_testing.py`        | the coarse-scaled testing process                    |
@@ -85,7 +85,7 @@ It is highly recommended to use one or more modern GPUs for computation.
 | `surgery.py`               | the surgery function                                 |
 | `utils.py`                 | the common functions                                 |
 |                            |                                                      |
-| **OrganSegC2F/prototxts**  | primary codes of OrganSegC2F                         |
+| **OrganSegRSTN/prototxts** | prototxt files of OrganSegRSTN                       |
 | `deploy_C3.prototxt`       | the prototxt file for coarse-scaled testing          |
 | `deploy_F3.prototxt`       | the prototxt file for fine-scaled testing            |
 | `deploy_O3.prototxt`       | the prototxt file for oracle testing                 |
@@ -95,6 +95,9 @@ It is highly recommended to use one or more modern GPUs for computation.
 | `training_J3x10.prototxt`  | the prototxt file for joint training (10xLR)         |
 | `training_S3x1.prototxt`   | the prototxt file for separate training (1xLR)       |
 | `training_S3x10.prototxt`  | the prototxt file for separate training (10xLR)      |
+|                            |                                                      |
+| **logs**                   | training log files on the NIH dataset                |
+
 
 The multiplier (1 or 10) applies to all the trainable layers in the fine stage of the framework.
 
@@ -206,7 +209,7 @@ You can run all the following modules with **one** execution!
         As described in the paper, we need ~80K iterations, which take less than 9 GPU-hours.
     After the training process, the log file will be copied to the snapshot directory.
 
-###### 4.3.3 Important notes on initialization.
+###### 4.3.3 Important notes on initialization and model convergence.
 
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
 ![](https://github.com/198808xc/OrganSegRSTN/blob/master/icon.png)
@@ -226,16 +229,25 @@ We initialized all upsampling weights to be 0, as the number of channels does no
 
 The most important thing is to initialize three layers related to saliency transformation,
 which are named "score", "score-R" and "saliency" in our prototxts.
-In our solution, we use a Xavier filler to fill in the weights of these layers,
-and use an all-0 bias vector for "score" and "score-R", and an all-1 vector for "saliency".
-In **90% of time**, the randomized weights lead to a successful convergence.
+In our solution, we use a Xavier filler to fill in the weights of the "score" and "score-R" layers,
+and an all-0 cube to fill in the weights of the "saliency" layer.
+For the bias term, we use an all-0 vector for "score" and "score-R", and an all-1 vector for "saliency".
+*We also set a restart mechanism after the first 10K iterations in case of non-convergece.*
+In more than **95% of time**, this mechanism leads to a successful convergence.
 
-We experimented several random initilizations, and observed their behaviors in the first 4K iterations.
-We chose the best one and provide it as the previous scratch file, which never fails to converge.
+###### How to determine if a model converges and works well?
+
+The loss function value in the beginning of training is almost 1.0.
+If a model converges, you should observe the loss function values to decrease gradually.
+**But in order to make it work well, in the last several epochs,
+you need to confirm the average loss function value to be sufficiently low (e.g. 0.15).**
+Here we attach the training logs for your reference, see Section 5.
+
+###### Training RSTN on other CT datasets?
 
 If you are experimenting on other **CT datasets**, we strongly recommend you to use a pre-trained model,
 which was tuned using all 82 training samples for pancreas segmentation on NIH (X|Y|Z data are mixed).
-This model can be found [here](http://nothing).
+This model can be found [here](http://nothing) (to be provided soon).
 Of course, do not use it to evaluate any NIH data, as all data have been used for training.
 
 
@@ -343,8 +355,6 @@ The 82 cases in the NIH dataset are split into 4 folds:
 
 We provide the individually-trained models on each plane of each fold, in total 12 files.
 
-#### TEMPORARILY UNAVAILABLE, WILL BE DONE SOON!
-
 Each of these models is around 1.03GB, approximately the size of two (coarse+fine) FCN models.
   * **Fold #0**: [[X]](https://nothing)
                  [[Y]](https://nothing)
@@ -364,6 +374,9 @@ Each of these models is around 1.03GB, approximately the size of two (coarse+fin
                  (**Accuracy**: coarse ??.??%, oracle ??.??%, coarse-to-fine ??.??%)
 
 If you encounter any problems in downloading these files, please contact Lingxi Xie (198808xc@gmail.com).
+
+We also attach the log files for your reference here. Please refer to the `logs/` folder.
+
 
 ## 6. Versions
 
