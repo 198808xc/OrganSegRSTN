@@ -155,7 +155,7 @@ Please follow these steps to reproduce our results on the NIH pancreas segmentat
     Put labels/ under $DATA_PATH/
     Download the scratch model below and put it under $DATA_PATH/models/pretrained/
 
-[The scratch model](https://nothing) - see the explanations in 4.2.3.
+[The scratch model](https://drive.google.com/open?id=1C7XPat4BhAHPA3azIssmc3cd7zJOmQ4k) - see the explanations in 4.2.3.
 
 NOTE: If you use other path(s), please modify the variable(s) in run.sh accordingly.
 
@@ -356,26 +356,26 @@ The 82 cases in the NIH dataset are split into 4 folds:
 We provide the individually-trained models on each plane of each fold, in total 12 files.
 
 Each of these models is around 1.03GB, approximately the size of two (coarse+fine) FCN models.
-  * **Fold #0**: [[X]](https://nothing)
-                 [[Y]](https://nothing)
-                 [[Z]](https://nothing)
-                 (**Accuracy**: coarse ??.??%, oracle ??.??%, coarse-to-fine ??.??%)
-  * **Fold #1**: [[X]](https://nothing)
-                 [[Y]](https://nothing)
-                 [[Z]](https://nothing)
-                 (**Accuracy**: coarse ??.??%, oracle ??.??%, coarse-to-fine ??.??%)
-  * **Fold #2**: [[X]](https://nothing)
-                 [[Y]](https://nothing)
-                 [[Z]](https://nothing)
-                 (**Accuracy**: coarse ??.??%, oracle ??.??%, coarse-to-fine ??.??%)
-  * **Fold #3**: [[X]](https://nothing)
-                 [[Y]](https://nothing)
-                 [[Z]](https://nothing)
-                 (**Accuracy**: coarse ??.??%, oracle ??.??%, coarse-to-fine ??.??%)
+  * **Fold #0**: [[X]](https://drive.google.com/open?id=1YtEl7liXz6OLHfljNuTTDmRq8OzcLLlz)
+                 [[Y]](https://drive.google.com/open?id=1rqUG3-_dCgSDKPwCjLxs9GKfKJgTVGb6)
+                 [[Z]](https://drive.google.com/open?id=14GiE6wKM5wV8ibVlW1KNA-25ULrODyjC)
+                 (**Accuracy**: coarse-to-fine 84.61%)
+  * **Fold #1**: [[X]](https://drive.google.com/open?id=1Czyp1gIuNBp3iSfI4QGJjEA3orJV_1Fu)
+                 [[Y]](https://drive.google.com/open?id=1rluXOLFgBbjNIspT0eBVEPZnge-Df83Y)
+                 [[Z]](https://drive.google.com/open?id=1E1V8quDQ0kPx4SPboh6kOycd_mDS5_TR)
+                 (**Accuracy**: coarse-to-fine 84.07%)
+  * **Fold #2**: [[X]](https://drive.google.com/open?id=1P0VYh245nb28HPXu05Z7pS_oYnv4wCZX)
+                 [[Y]](https://drive.google.com/open?id=1Bd0apeNbwZcNME0zTOTMIc1baxAavKdr)
+                 [[Z]](https://drive.google.com/open?id=1acQmeUNg1T_qmPa6tEtT3IxbyHqv2iER)
+                 (**Accuracy**: coarse-to-fine 84.03%)
+  * **Fold #3**: [[X]](https://drive.google.com/open?id=1sV4l6l7zJlQ0ME3kGHND7g1HQzOS_Sx7)
+                 [[Y]](https://drive.google.com/open?id=1cMBDhmycrKlQ6igJhoLgp3waDDNcNm45)
+                 [[Z]](https://drive.google.com/open?id=15uiqLnWkkqSHKoSIQnz7YH-e_MzTNq0r)
+                 (**Accuracy**: coarse-to-fine 85.42%)
 
 If you encounter any problems in downloading these files, please contact Lingxi Xie (198808xc@gmail.com).
 
-We also attach the log files for your reference here. Please refer to the `logs/` folder.
+We also attach the log files for your reference here. Please refer to the `logs/` folder (coming soon).
 
 
 ## 6. Versions
