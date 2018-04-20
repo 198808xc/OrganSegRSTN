@@ -34,6 +34,7 @@ The authors and their institution (JHU/JHMI) preserve the copyright and all lega
 ## 1. Introduction
 
 OrganSegRSTN is a code package for our paper:
+
   **Qihang Yu**, Lingxi Xie, Yan Wang, Yuyin Zhou, Elliot K. Fishman, Alan L. Yuille,
     "Recurrent Saliency Transformation Network: Incorporating Multi-Stage Visual Cues for Small Organ Segmentation",
     in IEEE Conference on CVPR, Salt Lake City, Utah, USA, 2018.
@@ -50,9 +51,9 @@ OrganSegRSTN is based on the state-of-the-art deep learning techniques.
 It is highly recommended to use one or more modern GPUs for computation.
     Using CPUs will take at least 50x more time in computation.
 
-**We provide an easy implementation in which both training and testing stages have 1 fine-scaled iteration.
+**We provide an easy implementation in which the training stages has only 1 fine-scaled iteration.
   If you hope to add more, please modify the prototxt file accordingly.
-  As we said in the paper, our strategy of using 1 stage in training and iterations in testing works very well.**
+  As we said in the paper, our strategy of using 1 stage in training and multiple iterations in testing works very well.**
 
 
 ## 2. File List
