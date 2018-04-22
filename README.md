@@ -207,7 +207,7 @@ You can run all the following modules with **one** execution!
             The log file will also be copied into this folder after the entire training process.
     On the axial view (training image size is 512x512, small input images make training faster),
         each 20 iterations cost ~10s on a Titan-X Pascal GPU, or ~8s on a Titan-Xp GPU.
-        As described in the paper, we need ~80K iterations, which take less than 9 GPU-hours.
+        As described in the code, we need ~40K iterations, which take less than 5 GPU-hours.
     After the training process, the log file will be copied to the snapshot directory.
 
 ###### 4.3.3 Important notes on initialization and model convergence.
