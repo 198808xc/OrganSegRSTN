@@ -374,6 +374,9 @@ Each of these models is around 1.03GB, approximately the size of two (coarse+fin
                  [[Y]](https://drive.google.com/open?id=1cMBDhmycrKlQ6igJhoLgp3waDDNcNm45)
                  [[Z]](https://drive.google.com/open?id=15uiqLnWkkqSHKoSIQnz7YH-e_MzTNq0r)
                  (**Accuracy**: coarse-to-fine 85.42%)
+  * Average accuracy over 82 cases: 84.53%.
+
+*We ran our codes several times, and the average accuracy varies between 84.4% and 84.6%.*
 
 If you encounter any problems in downloading these files, please contact Lingxi Xie (198808xc@gmail.com).
 
