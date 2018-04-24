@@ -117,11 +117,11 @@ The multiplier (1 or 10) applies to all the trainable layers in the fine stage o
 #### 3.2 CAFFE and pyCAFFE
 
 ###### 3.2.1 Download a CAFFE library from http://caffe.berkeleyvision.org/ .
-    Suppose your CAFFE root directory is `$CAFFE_PATH`.
+    Suppose your CAFFE root directory is $CAFFE_PATH.
 
 ###### 3.2.2 Place the files of Dice loss layer at the correct position.
-    `dice_loss_layer.hpp` -> `$CAFFE_PATH/include/caffe/layers/`
-    `dice_loss_layer.cpp` -> `$CAFFE_PATH/src/caffe/layers/`
+    dice_loss_layer.hpp -> $CAFFE_PATH/include/caffe/layers/
+    dice_loss_layer.cpp -> $CAFFE_PATH/src/caffe/layers/
 
 ###### 3.2.3 Make CAFFE and pyCAFFE.
 
@@ -140,21 +140,21 @@ Please follow these steps to reproduce our results on the NIH pancreas segmentat
 
 ###### 4.1.1 Download NIH data from https://wiki.cancerimagingarchive.net/display/Public/Pancreas-CT .
     You should be able to download image and label data individually.
-    Suppose your data directory is `$RAW_PATH`:
-        The image data are organized as `$RAW_PATH/DOI/PANCREAS_00XX/A_LONG_CODE/A_LONG_CODE/` .
-        The label data are organized as `$RAW_PATH/TCIA_pancreas_labels-TIMESTAMP/label00XX.nii.gz` .
+    Suppose your data directory is $RAW_PATH:
+        The image data are organized as $RAW_PATH/DOI/PANCREAS_00XX/A_LONG_CODE/A_LONG_CODE/ .
+        The label data are organized as $RAW_PATH/TCIA_pancreas_labels-TIMESTAMP/label00XX.nii.gz .
 
 ###### 4.1.2 Use our codes to transfer these data into NPY format.
-    Put `dicom2npy.py` under `$RAW_PATH`, and run: `python dicom2npy.py` .
-        The transferred data should be put under `$RAW_PATH/images/`
-    Put `nii2npy.py` under `$RAW_PATH`, and run: `python nii2npy.py` .
-        The transferred data should be put under `$RAW_PATH/labels/`
+    Put dicom2npy.py under $RAW_PATH, and run: python dicom2npy.py .
+        The transferred data should be put under $RAW_PATH/images/
+    Put nii2npy.py under $RAW_PATH, and run: python nii2npy.py .
+        The transferred data should be put under $RAW_PATH/labels/
 
 ###### 4.1.3 Suppose your directory to store experimental data is `$DATA_PATH`:
-    Put `$CAFFE_PATH` under `$DATA_PATH/libs/`
-    Put `images/` under `$DATA_PATH/`
-    Put `labels/` under $DATA_PATH/`
-    Download the scratch model below and put it under `$DATA_PATH/models/pretrained/`
+    Put $CAFFE_PATH under $DATA_PATH/libs/
+    Put images/ under $DATA_PATH/
+    Put labels/ under $DATA_PATH/
+    Download the scratch model below and put it under $DATA_PATH/models/pretrained/
 
 [The scratch model](https://drive.google.com/open?id=1C7XPat4BhAHPA3azIssmc3cd7zJOmQ4k) - see the explanations in 4.2.3.
 
@@ -166,14 +166,14 @@ NOTE: If you use other path(s), please modify the variable(s) in run.sh accordin
 ###### 4.2.1 Check `run.sh` and set $DATA_PATH accordingly.
 
 ###### 4.2.2 Set `$ENABLE_INITIALIZATION=1` and run this script.
-    Several folders will be created under `$DATA_PATH`:
-        `$DATA_PATH/images_X|Y|Z/`: the sliced image data (data are sliced for faster I/O).
-        `$DATA_PATH/labels_X|Y|Z/`: the sliced label data (data are sliced for faster I/O).
-        `$DATA_PATH/lists/`: used for storing training, testing and slice lists.
-        `$DATA_PATH/logs/`: used for storing log files during the training process.
-        `$DATA_PATH/models/`: used for storing models (snapshots) during the training process.
-        `$DATA_PATH/prototxts/`: used for storing prototxts (called by training and testing nets).
-        `$DATA_PATH/results/`: used for storing testing results (volumes and text results).
+    Several folders will be created under $DATA_PATH:
+        $DATA_PATH/images_X|Y|Z/: the sliced image data (data are sliced for faster I/O).
+        $DATA_PATH/labels_X|Y|Z/: the sliced label data (data are sliced for faster I/O).
+        $DATA_PATH/lists/: used for storing training, testing and slice lists.
+        $DATA_PATH/logs/: used for storing log files during the training process.
+        $DATA_PATH/models/: used for storing models (snapshots) during the training process.
+        $DATA_PATH/prototxts/: used for storing prototxts (called by training and testing nets).
+        $DATA_PATH/results/: used for storing testing results (volumes and text results).
     According to the I/O speed of your hard drive, the time cost may vary.
         For a typical HDD, around 20 seconds are required for a 512x512x300 volume.
     This process needs to be executed only once.
@@ -197,12 +197,12 @@ You can run all the following modules with **one** execution!
 
 ###### 4.3.1 Check `run.sh` and set `$INDIV_TRAINING_PLANE` and `$INDIV_TRAINING_GPU`.
     You need to run X|Y|Z planes individually, so you can use 3 GPUs in parallel.
-    You can also set `INDIV_TRAINING_PLANE=A`, so that three planes are trained orderly in one GPU.
+    You can also set INDIV_TRAINING_PLANE=A, so that three planes are trained orderly in one GPU.
 
 ###### 4.3.2 Set `$ENABLE_INDIV_TRAINING=1` and run this script.
     The following folders/files will be created:
-        Under `$DATA_PATH/logs/`, a log file named by training information.
-        Under `$DATA_PATH/models/snapshots/`, a folder named by training information.
+        Under $DATA_PATH/logs/, a log file named by training information.
+        Under $DATA_PATH/models/snapshots/, a folder named by training information.
             Snapshots and solver-states will be stored in this folder.
             The log file will also be copied into this folder after the entire training process.
     On the axial view (training image size is 512x512, small input images make training faster),
@@ -257,12 +257,12 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.4.1 Check `run.sh` and set `$JOINT_TRAINING_PLANE` and `$JOINT_TRAINING_GPU`.
     You need to run X|Y|Z planes individually, so you can use 3 GPUs in parallel.
-    You can also set `JOINT_TRAINING_PLANE=A`, so that three planes are trained orderly in one GPU.
+    You can also set JOINT_TRAINING_PLANE=A, so that three planes are trained orderly in one GPU.
 
 ###### 4.4.2 Set `$ENABLE_JOINT_TRAINING=1` and run this script.
     The following folders/files will be created:
-        Under `$DATA_PATH/logs/`, a log file named by training information.
-        Under `$DATA_PATH/models/snapshots/`, a folder named by training information.
+        Under $DATA_PATH/logs/, a log file named by training information.
+        Under $DATA_PATH/models/snapshots/, a folder named by training information.
             Snapshots and solver-states will be stored in this folder.
             The log file will also be copied into this folder after the entire training process.
     On the axial view (training image size is 512x512, small input images make training faster),
@@ -275,11 +275,11 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.5.1 Check `run.sh` and set `$COARSE_TESTING_PLANE` and `$COARSE_TESTING_GPU`.
     You need to run X|Y|Z planes individually, so you can use 3 GPUs in parallel.
-    You can also set `COARSE_TESTING_PLANE=A`, so that three planes are tested orderly in one GPU.
+    You can also set COARSE_TESTING_PLANE=A, so that three planes are tested orderly in one GPU.
 
 ###### 4.5.2 Set `$ENABLE_COARSE_TESTING=1` and run this script.
     The following folder will be created:
-        Under `$DATA_PATH/results/`, a folder named by training information.
+        Under $DATA_PATH/results/, a folder named by training information.
     Testing each volume costs ~30 seconds on a Titan-X Pascal GPU, or ~25s on a Titan-Xp GPU.
 
 
@@ -289,7 +289,7 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.6.2 Set `$ENABLE_COARSE_FUSION=1` and run this script.
     The following folder will be created:
-        Under `$DATA_PATH/results/`, a folder named by fusion information.
+        Under $DATA_PATH/results/, a folder named by fusion information.
     The main cost in fusion includes I/O and post-processing (removing non-maximum components).
         In our future release, we will implement post-processing in C for acceleration.
 
@@ -301,11 +301,11 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.7.1 Check `run.sh` and set `$ORACLE_TESTING_PLANE` and `$ORACLE_TESTING_GPU`.
     You need to run X|Y|Z planes individually, so you can use 3 GPUs in parallel.
-    You can also set `ORACLE_TESTING_PLANE=A`, so that three planes are tested orderly in one GPU.
+    You can also set ORACLE_TESTING_PLANE=A, so that three planes are tested orderly in one GPU.
 
 ###### 4.7.2 Set `$ENABLE_ORACLE_TESTING=1` and run this script.
     The following folder will be created:
-        Under `$DATA_PATH/results/`, a folder named by training information.
+        Under $DATA_PATH/results/, a folder named by training information.
     Testing each volume costs ~10 seconds on a Titan-X Pascal GPU, or ~8s on a Titan-Xp GPU.
 
 
@@ -318,7 +318,7 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.8.2 Set `$ENABLE_ORACLE_FUSION=1` and run this script.
     The following folder will be created:
-        Under `$DATA_PATH/results/`, a folder named by fusion information.
+        Under $DATA_PATH/results/, a folder named by fusion information.
     The main cost in fusion includes I/O and post-processing (removing non-maximum components).
         In our future release, we will implement post-processing in C for acceleration.
 
@@ -331,7 +331,7 @@ Of course, do not use it to evaluate any NIH data, as all cases have been used f
 
 ###### 4.9.2 Set `$ENABLE_COARSE2FINE_TESTING=1` and run this script.
     The following folder will be created:
-        Under `$DATA_PATH/results/`, a folder named by coarse-to-fine information (very long).
+        Under $DATA_PATH/results/, a folder named by coarse-to-fine information (very long).
     This function calls both fine-scaled testing and fusion codes, so both GPU and CPU are used.
         In our future release, we will implement post-processing in C for acceleration.
 
