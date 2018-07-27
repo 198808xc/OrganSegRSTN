@@ -20,7 +20,7 @@ def is_organ(label, organ_ID):
 #   current_fold: the current fold ID, an integer in [0, folds - 1]
 def in_training_set(total_samples, i, folds, current_fold):
     fold_remainder = folds - total_samples % folds
-    fold_size = (total_samples - fold_remainder) / folds
+    fold_size = (total_samples - total_samples % folds) / folds
     start_index = fold_size * current_fold + max(0, current_fold - fold_remainder)
     end_index = fold_size * (current_fold + 1) + max(0, current_fold + 1 - fold_remainder)
     return not (i >= start_index and i < end_index)
