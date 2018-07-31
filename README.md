@@ -1,5 +1,18 @@
 # OrganSegRSTN: an end-to-end coarse-to-fine organ segmentation framework
-version 1.0 - Apr 20 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
+version 2.0 - Jul 31 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
+
+#### NOTE: v2.0 is a MAJOR update to v1.0, which we:
+
+(1) slightly changed network architecture (score layers are removed and change to a saliency layer),
+  so that network training is more robust (especially on some tiny targets such as pancreatic cysts);
+
+(2) carefully optimized codes so that the testing stage becomes much more efficient,
+  especially when you use multiple processes to run different folds or datasets;
+
+(3) re-implemented two functions "post-processing" and "DSC_computation" in C, which is much faster.
+
+Note that our pre-trained models are also updated.
+
 
 #### **Qihang Yu and Yuyin Zhou are the main contributors to this repository.**
 
@@ -358,23 +371,23 @@ The 82 cases in the NIH dataset are split into 4 folds:
 We provide the individually-trained models on each plane of each fold, in total 12 files.
 
 Each of these models is around 1.03GB, approximately the size of two (coarse+fine) FCN models.
-  * **Fold #0**: [[X]](https://drive.google.com/open?id=1YtEl7liXz6OLHfljNuTTDmRq8OzcLLlz)
-                 [[Y]](https://drive.google.com/open?id=1rqUG3-_dCgSDKPwCjLxs9GKfKJgTVGb6)
-                 [[Z]](https://drive.google.com/open?id=14GiE6wKM5wV8ibVlW1KNA-25ULrODyjC)
-                 (**Accuracy**: coarse-to-fine 84.61%)
-  * **Fold #1**: [[X]](https://drive.google.com/open?id=1Czyp1gIuNBp3iSfI4QGJjEA3orJV_1Fu)
-                 [[Y]](https://drive.google.com/open?id=1rluXOLFgBbjNIspT0eBVEPZnge-Df83Y)
-                 [[Z]](https://drive.google.com/open?id=1E1V8quDQ0kPx4SPboh6kOycd_mDS5_TR)
-                 (**Accuracy**: coarse-to-fine 84.07%)
-  * **Fold #2**: [[X]](https://drive.google.com/open?id=1P0VYh245nb28HPXu05Z7pS_oYnv4wCZX)
-                 [[Y]](https://drive.google.com/open?id=1Bd0apeNbwZcNME0zTOTMIc1baxAavKdr)
-                 [[Z]](https://drive.google.com/open?id=1acQmeUNg1T_qmPa6tEtT3IxbyHqv2iER)
-                 (**Accuracy**: coarse-to-fine 84.03%)
-  * **Fold #3**: [[X]](https://drive.google.com/open?id=1sV4l6l7zJlQ0ME3kGHND7g1HQzOS_Sx7)
-                 [[Y]](https://drive.google.com/open?id=1cMBDhmycrKlQ6igJhoLgp3waDDNcNm45)
-                 [[Z]](https://drive.google.com/open?id=15uiqLnWkkqSHKoSIQnz7YH-e_MzTNq0r)
-                 (**Accuracy**: coarse-to-fine 85.42%)
-  * Average accuracy over 82 cases: 84.53%.
+  * **Fold #0**: [[X]](https://drive.google.com/open?id=1ILrnkXh7CEDHKJM7dMHrX23S-ecAjH1Q)
+                 [[Y]](https://drive.google.com/open?id=1hNh6jQhuyN6H-sGOA10llGk-J_dW6R6W)
+                 [[Z]](https://drive.google.com/open?id=1wvvv_lSahREzSHh8yUuoEZ3rECWYW4oh)
+                 (**Accuracy**: coarse-to-fine 84.44%)
+  * **Fold #1**: [[X]](https://drive.google.com/open?id=15KSS84Z63C2y4me6ALtm_aUBMVbf-0Jq)
+                 [[Y]](https://drive.google.com/open?id=1WHdrsYIGvaXuCcl1PWvjNC9HN7o6Ubbb)
+                 [[Z]](https://drive.google.com/open?id=10HNIObWNMZ-kk4iG7Tr7fECRmcJBslkL)
+                 (**Accuracy**: coarse-to-fine 84.35%)
+  * **Fold #2**: [[X]](https://drive.google.com/open?id=1uL-F-hvACbykoTPeAdSU-3Yq4i9NmHeX)
+                 [[Y]](https://drive.google.com/open?id=1admx2RM_3L8p3T33pdnDu2NMoWey59G9)
+                 [[Z]](https://drive.google.com/open?id=1lCI4jO9TorEdfL0eP7Qqjw8c6qmVfWMB)
+                 (**Accuracy**: coarse-to-fine 84.12%)
+  * **Fold #3**: [[X]](https://drive.google.com/open?id=1vqoiZ2xgySJCk2_9FhFMbAJCa8IuuI26)
+                 [[Y]](https://drive.google.com/open?id=1JM82TZYRl8HhXnTpjFxy96T3hfGge9XV)
+                 [[Z]](https://drive.google.com/open?id=11N_xDMvx6NvuyzSUxLZUItU31nl2if0C)
+                 (**Accuracy**: coarse-to-fine 85.43%)
+  * Average accuracy over 82 cases: 84.59%.
 
 *We ran our codes several times, and the average accuracy varies between 84.4% and 84.6%.*
 
@@ -385,9 +398,7 @@ We also attach the log files for your reference here. Please refer to the `logs/
 
 ## 6. Versions
 
-The current version is v1.0.
-
-You can also view `CHANGE_LOG.txt` for the history of versions.
+The current version is v2.0.
 
 
 ## 7. Contact Information
