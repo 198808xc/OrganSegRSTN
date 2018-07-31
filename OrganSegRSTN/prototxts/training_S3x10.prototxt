@@ -31,7 +31,6 @@ layer {
     stride: 1
   }
 }
-
 layer {
   name: "relu1_1"
   type: "ReLU"
@@ -630,16 +629,22 @@ layer {
   }
 }
 layer {
-  name: "score"
-  type: "Convolution"
+  name: "prob"
+  type: "Sigmoid"
   bottom: "upscore8_cropped"
-  top: "score"
+  top: "prob"
+}
+layer {
+  name: "saliency1"
+  type: "Convolution"
+  bottom: "prob"
+  top: "saliency1"
   param {
-    lr_mult: 1
+    lr_mult: 10
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 20
     decay_mult: 0
   }
   convolution_param {
@@ -652,20 +657,20 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 0
+      value: 1
     }
   }
 }
 layer {
-  name: "prob"
-  type: "Sigmoid"
-  bottom: "score"
-  top: "prob"
+  name: "relu_saliency1"
+  type: "ReLU"
+  bottom: "saliency1"
+  top: "saliency1"
 }
 layer {
   name: "saliency"
   type: "Convolution"
-  bottom: "prob"
+  bottom: "saliency1"
   top: "saliency"
   param {
     lr_mult: 10
@@ -1328,39 +1333,12 @@ layer {
   }
 }
 layer {
-  name: "score-R"
-  type: "Convolution"
-  bottom: "upscore8_cropped-R"
-  top: "score-R"
-  param {
-    lr_mult: 10
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 20
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 3
-    kernel_size: 3
-    stride: 1
-    pad: 1
-    weight_filler{
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "score_uncropped-R"
+  name: "upscore8_uncropped-R"
   type: "Python"
   bottom: "crop_info"
-  bottom: "score-R"
+  bottom: "upscore8_cropped-R"
   bottom: "data"
-  top: "score_uncropped-R"
+  top: "upscore8_uncropped-R"
   python_param {
     module: "Uncrop"
     layer: "UncropLayer"
@@ -1369,7 +1347,7 @@ layer {
 layer {
   name: "loss1"
   type: "DiceLoss"
-  bottom: "score"
+  bottom: "upscore8_cropped"
   bottom: "label"
   top: "loss1"
   loss_weight: 0.333333
@@ -1377,7 +1355,7 @@ layer {
 layer {
   name: "loss2"
   type: "DiceLoss"
-  bottom: "score_uncropped-R"
+  bottom: "upscore8_uncropped-R"
   bottom: "label"
   top: "loss2"
   loss_weight: 0.666667

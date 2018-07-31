@@ -17,9 +17,35 @@ layer {
   }
 }
 layer {
-  name: "saliency"
+  name: "saliency1"
   type: "Convolution"
   bottom: "prob"
+  top: "saliency1"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 3
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "relu_saliency1"
+  type: "ReLU"
+  bottom: "saliency1"
+  top: "saliency1"
+}
+layer {
+  name: "saliency"
+  type: "Convolution"
+  bottom: "saliency1"
   top: "saliency"
   param {
     lr_mult: 0
@@ -680,32 +706,12 @@ layer {
   }
 }
 layer {
-  name: "score-R"
-  type: "Convolution"
-  bottom: "upscore8_cropped-R"
-  top: "score-R"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 3
-    kernel_size: 3
-    stride: 1
-    pad: 1
-  }
-}
-layer {
-  name: "score_uncropped-R"
+  name: "upscore8_uncropped-R"
   type: "Python"
   bottom: "crop_info"
-  bottom: "score-R"
+  bottom: "upscore8_cropped-R"
   bottom: "data"
-  top: "score_uncropped-R"
+  top: "upscore8_uncropped-R"
   python_param {
     module: "Uncrop"
     layer: "UncropLayer"
@@ -714,6 +720,6 @@ layer {
 layer {
   name: "prob-R"
   type: "Sigmoid"
-  bottom: "score_uncropped-R"
+  bottom: "upscore8_uncropped-R"
   top: "prob-R"
 }

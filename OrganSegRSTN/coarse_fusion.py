@@ -86,12 +86,10 @@ for i in range(len(volume_list)):
     label = is_organ(label, organ_ID).astype(np.uint8)
     for plane in ['X', 'Y', 'Z']:
         volume_file = volume_filename_fusion(result_directory, plane, i)
-        pred = np.zeros_like(label, dtype = np.float32)
+        pred = np.zeros(label.shape, dtype = np.float32)
         for t in range(len(iteration)):
             volume_file_ = volume_filename_testing(result_directory_[plane], iteration[t], i)
-            volume_data = np.load(volume_file_)
-            pred_temp = volume_data['volume']
-            pred = pred + pred_temp
+            pred += np.load(volume_file_)['volume']
         pred_ = (pred >= threshold * 255 * len(iteration))
         if not os.path.isfile(volume_file):
             np.savez_compressed(volume_file, volume = pred_)
@@ -104,22 +102,26 @@ for i in range(len(volume_list)):
         output.close()
         if pred_sum == 0 and label_sum == 0:
             DSC_ = 0
-        pred = pred / 255 / len(iteration)
+        pred /= (255 * len(iteration))
         if plane == 'X':
-            pred_X = np.copy(pred).astype(np.float32)
+            pred_X = pred
             DSC_X[i] = DSC_
         elif plane == 'Y':
-            pred_Y = np.copy(pred).astype(np.float32)
+            pred_Y = pred
             DSC_Y[i] = DSC_
         elif plane == 'Z':
-            pred_Z = np.copy(pred).astype(np.float32)
+            pred_Z = pred
             DSC_Z[i] = DSC_
     volume_file_F1 = volume_filename_fusion(result_directory, 'F1', i)
+    volume_file_F2 = volume_filename_fusion(result_directory, 'F2', i)
+    volume_file_F3 = volume_filename_fusion(result_directory, 'F3', i)
+    if not os.path.isfile(volume_file_F1) or not os.path.isfile(volume_file_F2) or \
+        not os.path.isfile(volume_file_F3):
+        pred_total = pred_X + pred_Y + pred_Z
     if os.path.isfile(volume_file_F1):
-        volume_data = np.load(volume_file_F1)
-        pred_F1 = volume_data['volume']
+        pred_F1 = np.load(volume_file_F1)['volume'].astype(np.uint8)
     else:
-        pred_F1 = (pred_X + pred_Y + pred_Z >= 0.5)
+        pred_F1 = (pred_total >= 0.5).astype(np.uint8)
         np.savez_compressed(volume_file_F1, volume = pred_F1)
     DSC_F1[i], inter_sum, pred_sum, label_sum = DSC_computation(label, pred_F1)
     print '    DSC_F1 = 2 * ' + str(inter_sum) + ' / (' + str(pred_sum) + ' + ' \
@@ -130,12 +132,10 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F1[i] = 0
-    volume_file_F2 = volume_filename_fusion(result_directory, 'F2', i)
     if os.path.isfile(volume_file_F2):
-        volume_data = np.load(volume_file_F)
-        pred_F2 = volume_data['volume']
+        pred_F2 = np.load(volume_file_F2)['volume'].astype(np.uint8)
     else:
-        pred_F2 = (pred_X + pred_Y + pred_Z >= 1.5)
+        pred_F2 = (pred_total >= 1.5).astype(np.uint8)
         np.savez_compressed(volume_file_F2, volume = pred_F2)
     DSC_F2[i], inter_sum, pred_sum, label_sum = DSC_computation(label, pred_F2)
     print '    DSC_F2 = 2 * ' + str(inter_sum) + ' / (' + str(pred_sum) + ' + ' + \
@@ -146,12 +146,10 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F2[i] = 0
-    volume_file_F3 = volume_filename_fusion(result_directory, 'F3', i)
     if os.path.isfile(volume_file_F3):
-        volume_data = np.load(volume_file_F3)
-        pred_F3 = volume_data['volume']
+        pred_F3 = np.load(volume_file_F3)['volume'].astype(np.uint8)
     else:
-        pred_F3 = (pred_X + pred_Y + pred_Z >= 2.5)
+        pred_F3 = (pred_total >= 2.5).astype(np.uint8)
         np.savez_compressed(volume_file_F3, volume = pred_F3)
     DSC_F3[i], inter_sum, pred_sum, label_sum = DSC_computation(label, pred_F3)
     print '    DSC_F3 = 2 * ' + str(inter_sum) + ' / (' + str(pred_sum) + ' + ' + \
@@ -162,15 +160,16 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F3[i] = 0
+    volume_file_F1P = volume_filename_fusion(result_directory, 'F1P', i)
+    volume_file_F2P = volume_filename_fusion(result_directory, 'F2P', i)
+    volume_file_F3P = volume_filename_fusion(result_directory, 'F3P', i)
     S = pred_F3
     if (S.sum() == 0):
         S = pred_F2
     if (S.sum() == 0):
         S = pred_F1
-    volume_file_F1P = volume_filename_fusion(result_directory, 'F1P', i)
     if os.path.isfile(volume_file_F1P):
-        volume_data = np.load(volume_file_F1P)
-        pred_F1P = volume_data['volume']
+        pred_F1P = np.load(volume_file_F1P)['volume'].astype(np.uint8)
     else:
         pred_F1P = post_processing(pred_F1, S, 0.5, organ_ID)
         np.savez_compressed(volume_file_F1P, volume = pred_F1P)
@@ -183,10 +182,8 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F1P[i] = 0
-    volume_file_F2P = volume_filename_fusion(result_directory, 'F2P', i)
     if os.path.isfile(volume_file_F2P):
-        volume_data = np.load(volume_file_F2P)
-        pred_F2P = volume_data['volume']
+        pred_F2P = np.load(volume_file_F2P)['volume'].astype(np.uint8)
     else:
         pred_F2P = post_processing(pred_F2, S, 0.5, organ_ID)
         np.savez_compressed(volume_file_F2P, volume = pred_F2P)
@@ -199,10 +196,8 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F2P[i] = 0
-    volume_file_F3P = volume_filename_fusion(result_directory, 'F3P', i)
     if os.path.isfile(volume_file_F3P):
-        volume_data = np.load(volume_file_F3P)
-        pred_F3P = volume_data['volume']
+        pred_F3P = np.load(volume_file_F3P)['volume'].astype(np.uint8)
     else:
         pred_F3P = post_processing(pred_F3, S, 0.5, organ_ID)
         np.savez_compressed(volume_file_F3P, volume = pred_F3P)
@@ -215,6 +210,15 @@ for i in range(len(volume_list)):
     output.close()
     if pred_sum == 0 and label_sum == 0:
         DSC_F3P[i] = 0
+    pred_X = None
+    pred_Y = None
+    pred_Z = None
+    pred_F1 = None
+    pred_F2 = None
+    pred_F3 = None
+    pred_F1P = None
+    pred_F2P = None
+    pred_F3P = None
 output = open(result_file, 'a+')
 print 'Average DSC_X = ' + str(np.mean(DSC_X)) + ' .'
 output.write('Average DSC_X = ' + str(np.mean(DSC_X)) + ' .\n')

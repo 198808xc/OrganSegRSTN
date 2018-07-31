@@ -45,9 +45,7 @@ if __name__ == '__main__':
     log_file_ = log_filename(snapshot_directory)
     weights = os.path.join(pretrained_model_path, 'RSTN-scratch.caffemodel')
     if not os.path.isfile(weights):
-        sys.exit('Error: scratch file was not found')
-        #TODO: urllib.urlretrieve('http://????????!', weights)
-        print 'Downloading <' + weights + '> from the Internet ...'
+        sys.exit('Error: the scratch model was not found, please download it from our GitHub.')
 
 
 if __name__ == '__main__':

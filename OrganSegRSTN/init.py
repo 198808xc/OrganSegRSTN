@@ -78,8 +78,7 @@ for i in range(total_samples):
             if not os.path.isfile(image_filename_) or not os.path.isfile(label_filename_):
                 np.save(image_filename_, image_)
                 np.save(label_filename_, label_)
-            image_[image_ < low_range] = low_range
-            image_[image_ > high_range] = high_range
+            np.minimum(np.maximum(image_, low_range, image_), high_range, image_)
             average[j] = float(image_.sum()) / (image_.shape[0] * image_.shape[1])
             for o in range(1, organ_number + 1):
                 sum_[j, o] = (is_organ(label_, o)).sum()

@@ -100,37 +100,37 @@ for t in range(len(snapshot)):
         label = np.load(s[2])
         label = is_organ(label, organ_ID).astype(np.uint8)
         if not os.path.isfile(volume_file):
-            image = np.load(s[1])
+            image = np.load(s[1]).astype(np.float32)
+            np.minimum(np.maximum(image, low_range, image), high_range, image)
+            image -= low_range
+            image /= (high_range - low_range)
             print '  Data loading is finished: ' + \
                 str(time.time() - start_time) + ' second(s) elapsed.'
-            pred = np.zeros_like(image, dtype = np.float32)
+            pred = np.zeros(image.shape, dtype = np.float32)
             minR = 0
             if plane == 'X':
-                maxR = label.shape[0]
+                maxR = image.shape[0]
+                shape_ = (1, 3, image.shape[1], image.shape[2])
             elif plane == 'Y':
-                maxR = label.shape[1]
+                maxR = image.shape[1]
+                shape_ = (1, 3, image.shape[0], image.shape[2])
             elif plane == 'Z':
-                maxR = label.shape[2]
+                maxR = image.shape[2]
+                shape_ = (1, 3, image.shape[0], image.shape[1])
             for j in range(minR, maxR):
                 if slice_thickness == 1:
                     sID = [j, j, j]
                 elif slice_thickness == 3:
                     sID = [max(minR, j - 1), j, min(maxR - 1, j + 1)]
                 if plane == 'X':
-                    image_ = image[sID, :, :].astype(np.float32)
-                    label_ = label[sID, :, :].astype(np.uint8)
+                    net.blobs['data'].reshape(*shape_)
+                    net.blobs['data'].data[0, ...] = image[sID, :, :]
                 elif plane == 'Y':
-                    image_ = image[:, sID, :].transpose(1, 0, 2).astype(np.float32)
-                    label_ = label[:, sID, :].transpose(1, 0, 2).astype(np.uint8)
+                    net.blobs['data'].reshape(*shape_)
+                    net.blobs['data'].data[0, ...] = image[:, sID, :].transpose(1, 0, 2)
                 elif plane == 'Z':
-                    image_ = image[:, :, sID].transpose(2, 0, 1).astype(np.float32)
-                    label_ = label[:, :, sID].transpose(2, 0, 1).astype(np.uint8)
-                image_[image_ > high_range] = high_range
-                image_[image_ < low_range] = low_range
-                image_ = (image_ - low_range) / (high_range - low_range)
-                image_ = image_.reshape(1, image_.shape[0], image_.shape[1], image_.shape[2])
-                net.blobs['data'].reshape(*image_.shape)
-                net.blobs['data'].data[...] = image_
+                    net.blobs['data'].reshape(*shape_)
+                    net.blobs['data'].data[0, ...] = image[:, :, sID].transpose(2, 0, 1)
                 net.forward()
                 out = net.blobs['prob'].data[0, :, :, :]
                 if slice_thickness == 1:
@@ -142,14 +142,26 @@ for t in range(len(snapshot)):
                         pred[:, :, j] = out
                 elif slice_thickness == 3:
                     if plane == 'X':
-                        pred[max(minR, j - 1): min(maxR, j + 2), :, :] += \
-                            out[max(0, 1 - j): min(3, maxR + 1 - j), :, :]
+                        if j == minR:
+                            pred[j: j + 2, :, :] += out[1: 3, :, :]
+                        elif j == maxR - 1:
+                            pred[j - 1: j + 1, :, :] += out[0: 2, :, :]
+                        else:
+                            pred[j - 1: j + 2, :, :] += out[...]
                     elif plane == 'Y':
-                        pred[:, max(minR, j - 1): min(maxR, j + 2), :] += \
-                            out[max(0, 1 - j): min(3, maxR + 1 - j), :, :].transpose(1, 0, 2)
+                        if j == minR:
+                            pred[:, j: j + 2, :] += out[1: 3, :, :].transpose(1, 0, 2)
+                        elif j == maxR - 1:
+                            pred[:, j - 1: j + 1, :] += out[0: 2, :, :].transpose(1, 0, 2)
+                        else:
+                            pred[:, j - 1: j + 2, :] += out[...].transpose(1, 0, 2)
                     elif plane == 'Z':
-                        pred[:, :, max(minR, j - 1): min(maxR, j + 2)] += \
-                            out[max(0, 1 - j): min(3, maxR + 1 - j), :, :].transpose(1, 2, 0)
+                        if j == minR:
+                            pred[:, :, j: j + 2] += out[1: 3, :, :].transpose(1, 2, 0)
+                        elif j == maxR - 1:
+                            pred[:, :, j - 1: j + 1] += out[0: 2, :, :].transpose(1, 2, 0)
+                        else:
+                            pred[:, :, j - 1: j + 2] += out[...].transpose(1, 2, 0)
             if slice_thickness == 3:
                 if plane == 'X':
                     pred[minR, :, :] /= 2
@@ -164,19 +176,16 @@ for t in range(len(snapshot)):
                     pred[:, :, minR + 1: maxR - 1] /= 3
                     pred[:, :, maxR - 1] /= 2
             print '  Testing is finished: ' + str(time.time() - start_time) + ' second(s) elapsed.'
-            pred = np.uint8(np.around(pred * 255))
+            pred = np.around(pred * 255).astype(np.uint8)
             np.savez_compressed(volume_file, volume = pred)
             print '  Data saving is finished: ' + \
                 str(time.time() - start_time) + ' second(s) elapsed.'
-            pred_temp = np.zeros_like(pred, dtype = np.bool)
-            pred_temp[pred >= 128] = True
+            pred_temp = (pred >= 128)
         else:
-            volume_data = np.load(volume_file)
-            pred = volume_data['volume']
+            pred = np.load(volume_file)['volume'].astype(np.uint8)
             print '  Testing result is loaded: ' + \
                 str(time.time() - start_time) + ' second(s) elapsed.'
-            pred_temp = np.zeros_like(pred, dtype = np.bool)
-            pred_temp[pred >= 128] = True
+            pred_temp = (pred >= 128)
         DSC[t, i], inter_sum, pred_sum, label_sum = DSC_computation(label, pred_temp)
         print '    DSC = 2 * ' + str(inter_sum) + ' / (' + str(pred_sum) + \
             ' + ' + str(label_sum) + ') = ' + str(DSC[t, i]) + ' .'

@@ -6,7 +6,6 @@ import random
 class CropLayer(caffe.Layer):
 
     def setup(self, bottom, top):
-        params = eval(self.param_str)
         self.margin = 0
         self.prob = 0
         self.batch = 0
@@ -14,6 +13,7 @@ class CropLayer(caffe.Layer):
         self.right = 0
         self.top = 0
         self.bottom = 0
+        params = eval(self.param_str)
         self.TEST = params["TEST"]
 
 

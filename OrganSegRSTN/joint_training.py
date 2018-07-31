@@ -75,7 +75,7 @@ if __name__ == '__main__':
     output.write('base_lr: ' + str(learning_rate2) + '\n')
     output.write('lr_policy: \"multistep\"\n')
     output.write('gamma: 0.5\n')
-    output.write('stepvalue: ' + str(max_iterations1 + max_iterations2 / 4) + '\n')
+    output.write('stepvalue: ' + str(max_iterations1 + max_iterations2 / 4 * 1) + '\n')
     output.write('stepvalue: ' + str(max_iterations1 + max_iterations2 / 4 * 2) + '\n')
     output.write('stepvalue: ' + str(max_iterations1 + max_iterations2 / 4 * 3) + '\n')
     output.write('\n' * 1)

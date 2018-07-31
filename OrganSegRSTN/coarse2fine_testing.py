@@ -172,128 +172,127 @@ for i in range(len(volume_list)):
             finished = False
             break
     if not finished:
-        image = np.load(s[1])
+        image = np.load(s[1]).astype(np.float32)
+        np.minimum(np.maximum(image, low_range, image), high_range, image)
+        image -= low_range
+        image /= (high_range - low_range)
+        imageX = image
+        imageY = image.transpose(1, 0, 2).copy()
+        imageZ = image.transpose(2, 0, 1).copy()
     print '  Data loading is finished: ' + str(time.time() - start_time) + ' second(s) elapsed.'
     for r in range(max_rounds + 1):
         print '  Iteration round ' + str(r) + ':'
         volume_file = volume_filename_coarse2fine(coarse2fine_result_directory, r, i)
         if not finished:
-            pred_ = np.zeros_like(label, dtype = np.float32)
             if r == 0:
+                pred_ = np.zeros(label.shape, dtype = np.float32)
                 for plane in ['X', 'Y', 'Z']:
                     for t in range(len(coarse_iteration)):
                         volume_file_ = volume_filename_testing( \
                             coarse_result_directory_[plane], coarse_iteration[t], i)
-                        volume_data = np.load(volume_file_)
-                        pred_temp = volume_data['volume']
-                        pred_ = pred_ + pred_temp
-                pred_ = pred_ / 255 / len(coarse_iteration) / 3
+                        pred_ += np.load(volume_file_)['volume']
+                pred_ /= (255 * len(coarse_iteration) * 3)
                 print '    Fusion is finished: ' + \
                     str(time.time() - start_time) + ' second(s) elapsed.'
             else:
-                if mask.sum() == 0:
+                mask_sumX = np.sum(mask, axis = (1, 2))
+                if mask_sumX.sum() == 0:
                     continue
-                pred_ = np.zeros_like(label, dtype = np.float32)
+                mask_sumY = np.sum(mask, axis = (0, 2))
+                mask_sumZ = np.sum(mask, axis = (0, 1))
+                scoreX = score
+                scoreY = score.transpose(1, 0, 2).copy()
+                scoreZ = score.transpose(2, 0, 1).copy()
+                maskX = mask
+                maskY = mask.transpose(1, 0, 2).copy()
+                maskZ = mask.transpose(2, 0, 1).copy()
+                pred_ = np.zeros(label.shape, dtype = np.float32)
                 for plane in ['X', 'Y', 'Z']:
                     for t in range(len(fine_iteration)):
-                        pred__ = np.zeros_like(image, dtype = np.float32)
                         net = net_[plane][t]
                         minR = 0
                         if plane == 'X':
                             maxR = label.shape[0]
+                            shape_ = (1, 3, image.shape[1], image.shape[2])
+                            pred__ = np.zeros((image.shape[0], image.shape[1], image.shape[2]), \
+                                dtype = np.float32)
                         elif plane == 'Y':
                             maxR = label.shape[1]
+                            shape_ = (1, 3, image.shape[0], image.shape[2])
+                            pred__ = np.zeros((image.shape[1], image.shape[0], image.shape[2]), \
+                                dtype = np.float32)
                         elif plane == 'Z':
                             maxR = label.shape[2]
+                            shape_ = (1, 3, image.shape[0], image.shape[1])
+                            pred__ = np.zeros((image.shape[2], image.shape[0], image.shape[1]), \
+                                dtype = np.float32)
+                        first = True
                         for j in range(minR, maxR):
                             if slice_thickness == 1:
                                 sID = [j, j, j]
                             elif slice_thickness == 3:
                                 sID = [max(minR, j - 1), j, min(maxR - 1, j + 1)]
-                            if plane == 'X':
-                                image_ = image[sID, :, :].astype(np.float32)
-                                score_ = score[sID, :, :].astype(np.float32)
-                                mask_ = mask[sID, :, :].astype(np.uint8)
-                            elif plane == 'Y':
-                                image_ = image[:, sID, :].transpose(1, 0, 2).astype(np.float32)
-                                score_ = score[:, sID, :].transpose(1, 0, 2).astype(np.float32)
-                                mask_ = mask[:, sID, :].transpose(1, 0, 2).astype(np.uint8)
-                            elif plane == 'Z':
-                                image_ = image[:, :, sID].transpose(2, 0, 1).astype(np.float32)
-                                score_ = score[:, :, sID].transpose(2, 0, 1).astype(np.float32)
-                                mask_ = mask[:, :, sID].transpose(2, 0, 1).astype(np.uint8)
-                            if mask_.sum() == 0:
+                            if (plane == 'X' and mask_sumX[sID].sum() == 0) or \
+                                (plane == 'Y' and mask_sumY[sID].sum() == 0) or \
+                                (plane == 'Z' and mask_sumZ[sID].sum() == 0):
                                 continue
-                            image_[image_ > high_range] = high_range
-                            image_[image_ < low_range] = low_range
-                            image_ = (image_ - low_range) / (high_range - low_range)
-                            image_ = image_.reshape(1, \
-                                image_.shape[0], image_.shape[1], image_.shape[2])
-                            score_ = score_.reshape(1, \
-                                score_.shape[0], score_.shape[1], score_.shape[2])
-                            mask_ = mask_.reshape(1, \
-                                mask_.shape[0], mask_.shape[1], mask_.shape[2])
-                            net.blobs['data'].reshape(*image_.shape)
-                            net.blobs['data'].data[...] = image_
-                            net.blobs['prob'].reshape(*score_.shape)
-                            net.blobs['prob'].data[...] = score_
-                            net.blobs['label'].reshape(*mask_.shape)
-                            net.blobs['label'].data[...] = mask_
-                            net.blobs['crop_margin'].reshape((1))
-                            net.blobs['crop_margin'].data[...] = margin
-                            net.blobs['crop_prob'].reshape((1))
-                            net.blobs['crop_prob'].data[...] = 0
-                            net.blobs['crop_sample_batch'].reshape((1))
-                            net.blobs['crop_sample_batch'].data[...] = 0
+                            if first:
+                                net.blobs['data'].reshape(*shape_)
+                                net.blobs['prob'].reshape(*shape_)
+                                net.blobs['label'].reshape(*shape_)
+                                net.blobs['crop_margin'].reshape((1))
+                                net.blobs['crop_margin'].data[...] = margin
+                                net.blobs['crop_prob'].reshape((1))
+                                net.blobs['crop_prob'].data[...] = 0
+                                net.blobs['crop_sample_batch'].reshape((1))
+                                net.blobs['crop_sample_batch'].data[...] = 0
+                                first = False
+                            if plane == 'X':
+                                net.blobs['data'].data[0, ...] = imageX[sID, :, :]
+                                net.blobs['prob'].data[0, ...] = scoreX[sID, :, :]
+                                net.blobs['label'].data[0, ...] = maskX[sID, :, :]
+                            elif plane == 'Y':
+                                net.blobs['data'].data[0, ...] = imageY[sID, :, :]
+                                net.blobs['prob'].data[0, ...] = scoreY[sID, :, :]
+                                net.blobs['label'].data[0, ...] = maskY[sID, :, :]
+                            elif plane == 'Z':
+                                net.blobs['data'].data[0, ...] = imageZ[sID, :, :]
+                                net.blobs['prob'].data[0, ...] = scoreZ[sID, :, :]
+                                net.blobs['label'].data[0, ...] = maskZ[sID, :, :]
                             net.forward()
                             out = net.blobs['prob-R'].data[0, :, :, :]
                             if slice_thickness == 1:
-                                if plane == 'X':
-                                    pred__[j, :, :] = out
-                                elif plane == 'Y':
-                                    pred__[:, j, :] = out
-                                elif plane == 'Z':
-                                    pred__[:, :, j] = out
+                                pred__[j, :, :] = out
                             elif slice_thickness == 3:
-                                if plane == 'X':
-                                    pred__[max(minR, j - 1): min(maxR, j + 2), :, :] += \
-                                        out[max(minR, 1 - j): min(3, maxR + 1 - j), :, :]
-                                elif plane == 'Y':
-                                    pred__[:, max(minR, j - 1): min(maxR, j + 2), :] += \
-                                        out[max(minR, 1 - j): min(3, maxR + 1 - j), \
-                                            :, :].transpose(1, 0, 2)
-                                elif plane == 'Z':
-                                    pred__[:, :, max(minR, j - 1): min(maxR, j + 2)] += \
-                                        out[max(minR, 1 - j): min(3, maxR + 1 - j), \
-                                            :, :].transpose(1, 2, 0)
+                                if j == minR:
+                                    pred__[minR: minR + 2, :, :] += out[1: 3, :, :]
+                                elif j == maxR - 1:
+                                    pred__[maxR - 2: maxR, :, :] += out[0: 2, :, :]
+                                else:
+                                    pred__[j - 1: j + 2, :, :] += out
                         if slice_thickness == 3:
-                            if plane == 'X':
-                                pred__[minR, :, :] /= 2
-                                pred__[minR + 1: maxR - 1, :, :] /= 3
-                                pred__[maxR - 1, :, :] /= 2
-                            elif plane == 'Y':
-                                pred__[:, minR, :] /= 2
-                                pred__[:, minR + 1: maxR - 1, :] /= 3
-                                pred__[:, maxR - 1, :] /= 2
-                            elif plane == 'Z':
-                                pred__[:, :, minR] /= 2
-                                pred__[:, :, minR + 1: maxR - 1] /= 3
-                                pred__[:, :, maxR - 1] /= 2
+                            pred__[minR, :, :] /= 2
+                            pred__[minR + 1: maxR - 1, :, :] /= 3
+                            pred__[maxR - 1, :, :] /= 2
                         print '    Testing on plane ' + plane + ' and snapshot ' + str(t + 1) + \
                             ' is finished: ' + str(time.time() - start_time) + \
                             ' second(s) elapsed.'
-                        pred_ = pred_ + pred__
-                pred_ = pred_ / len(fine_iteration) / 3
+                        if plane == 'X':
+                            pred_ += pred__
+                        elif plane == 'Y':
+                            pred_ += pred__.transpose(1, 0, 2)
+                        elif plane == 'Z':
+                            pred_ += pred__.transpose(1, 2, 0)
+                        pred__ = None
+                pred_ /= (len(fine_iteration) * 3)
                 print '    Testing is finished: ' + \
                     str(time.time() - start_time) + ' second(s) elapsed.'
-            pred = np.zeros_like(pred_, dtype = np.int8)
-            pred[pred_ >= fine_threshold] = 1
+            pred = (pred_ >= fine_threshold).astype(np.uint8)
             if r > 0:
                 pred = post_processing(pred, pred, 0.5, organ_ID)
             np.savez_compressed(volume_file, volume = pred)
         else:
-            volume_data = np.load(volume_file)
-            pred = volume_data['volume']
+            pred = np.load(volume_file)['volume'].astype(np.uint8)
             print '    Testing result is loaded: ' + \
                 str(time.time() - start_time) + ' second(s) elapsed.'
         DSC[r, i], inter_sum, pred_sum, label_sum = DSC_computation(label, pred)
@@ -325,8 +324,8 @@ for i in range(len(volume_list)):
                 DSC_99[i] = DSC[r, i]
         if r <= max_rounds:
             if not finished:
-                score = np.copy(pred_)
-            mask = np.copy(pred)
+                score = pred_
+            mask = pred
 for r in range(max_rounds + 1):
     print 'Round ' + str(r) + ', ' + 'Average DSC = ' + str(np.mean(DSC[r, :])) + ' .'
     output = open(coarse2fine_result_file, 'a+')

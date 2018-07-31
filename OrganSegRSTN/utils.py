@@ -2,6 +2,7 @@ import numpy as np
 import os
 import sys
 import math
+import fast_functions as ff
 
 
 ####################################################################################################
@@ -43,7 +44,7 @@ def testing_set_filename(current_fold):
 def log_filename(snapshot_directory):
     count = 0
     while True:
-        count = count + 1
+        count += 1
         if count == 1:
             log_file_ = os.path.join(snapshot_directory, 'log.txt')
         else:
@@ -109,7 +110,7 @@ def snapshot_name_from_timestamp_s(snapshot_path, current_fold, \
                     valid = False
                     break
             if valid:
-                count = count + 1
+                count += 1
                 if count == s:
                     snapshot_name = name
                     found = True
@@ -150,19 +151,16 @@ def snapshot_name_from_timestamp_2_s(snapshot_path1, snapshot_path2, current_fol
             name1 = name2.split(',')[0]
             snapshot_directory1 = os.path.join(snapshot_path1, name1)
             snapshot_directory2 = os.path.join(snapshot_path2, name2)
-            print snapshot_str1, snapshot_str2, name2
             valid = True
             for t in range(len(iteration)):
                 snapshot_file1 = snapshot_filename(snapshot_directory1, iteration[t])
                 snapshot_file2 = snapshot_filename(snapshot_directory2, iteration[t])
-                print snapshot_file1, snapshot_file2
-                print os.path.isfile(snapshot_file1), os.path.isfile(snapshot_file2)
                 if (os.path.isfile(snapshot_file1) and os.path.isfile(snapshot_file2)) or \
                     (not os.path.isfile(snapshot_file1) and not os.path.isfile(snapshot_file2)):
                     valid = False
                     break
             if valid:
-                count = count + 1
+                count += 1
                 if count == s:
                     snapshot_name = [name1, name2]
                     found = True
@@ -226,7 +224,7 @@ def result_name_from_timestamp_s(result_path, current_fold, \
                 if not valid:
                     break
             if valid:
-                count = count + 1
+                count += 1
                 if count == s:
                     result_name = name
                     found = True
@@ -276,7 +274,7 @@ def result_name_from_timestamp_2_s(result_path, \
                 if not valid:
                     break
             if valid:
-                count = count + 1
+                count += 1
                 if count == s:
                     result_name = name
                     found = True
@@ -300,10 +298,9 @@ def result_name_from_timestamp_2(result_path, \
 ####################################################################################################
 # computing the DSC together with other values based on the label and prediction volumes
 def DSC_computation(label, pred):
-    pred_sum = pred.sum()
-    label_sum = label.sum()
-    inter_sum = np.logical_and(pred, label).sum()
-    return 2 * float(inter_sum) / (pred_sum + label_sum), inter_sum, pred_sum, label_sum
+    P = np.zeros(3, dtype = np.uint32)
+    ff.DSC_computation(label, pred, P)
+    return 2 * float(P[2]) / (P[0] + P[1]), P[2], P[1], P[0]
 
 
 ####################################################################################################
@@ -318,72 +315,8 @@ def DSC_computation(label, pred):
 #       NOTE: 1 means to only keep the largest one(s), 0 means to keep all
 #   organ_ID: passed in case that each organ needs to be dealt with differently
 def post_processing(F, S, threshold, organ_ID):
-    if F.sum() == 0:
-        return F
-    if F.sum() >= np.product(F.shape) / 2:
-        return F
-    height  = F.shape[0]
-    width = F.shape[1]
-    depth = F.shape[2]
-    ll = np.array(np.nonzero(S))
-    marked = np.zeros_like(F, dtype = np.bool)
-    queue = np.zeros((F.sum(), 3), dtype = np.int)
-    volume = np.zeros(F.sum(), dtype = np.int)
-    head = 0
-    tail = 0
-    bestHead = 0
-    bestTail = 0
-    bestHead2 = 0
-    bestTail2 = 0
-    for l in range(ll.shape[1]):
-        if not marked[ll[0, l], ll[1, l], ll[2, l]]:
-            temp = head
-            marked[ll[0, l], ll[1, l], ll[2, l]] = True
-            queue[tail, :] = [ll[0, l], ll[1, l], ll[2, l]]
-            tail = tail + 1
-            while (head < tail):
-                t1 = queue[head, 0]
-                t2 = queue[head, 1]
-                t3 = queue[head, 2]
-                if t1 > 0 and F[t1 - 1, t2, t3] and not marked[t1 - 1, t2, t3]:
-                    marked[t1 - 1, t2, t3] = True
-                    queue[tail, :] = [t1 - 1, t2, t3]
-                    tail = tail + 1
-                if t1 < height - 1 and F[t1 + 1, t2, t3] and not marked[t1 + 1, t2, t3]:
-                    marked[t1 + 1, t2, t3] = True
-                    queue[tail, :] = [t1 + 1, t2, t3]
-                    tail = tail + 1
-                if t2 > 0 and F[t1, t2 - 1, t3] and not marked[t1, t2 - 1, t3]:
-                    marked[t1, t2 - 1, t3] = True
-                    queue[tail, :] = [t1, t2 - 1, t3]
-                    tail = tail + 1
-                if t2 < width - 1 and F[t1, t2 + 1, t3] and not marked[t1, t2 + 1, t3]:
-                    marked[t1, t2 + 1, t3] = True
-                    queue[tail, :] = [t1, t2 + 1, t3]
-                    tail = tail + 1
-                if t3 > 0 and F[t1, t2, t3 - 1] and not marked[t1, t2, t3 - 1]:
-                    marked[t1, t2, t3 - 1] = True
-                    queue[tail, :] = [t1, t2, t3 - 1]
-                    tail = tail + 1
-                if t3 < depth - 1 and F[t1, t2, t3 + 1] and not marked[t1, t2, t3 + 1]:
-                    marked[t1, t2, t3 + 1] = True
-                    queue[tail, :] = [t1, t2, t3 + 1]
-                    tail = tail + 1
-                head = head + 1
-            if tail - temp > bestTail - bestHead:
-                bestHead2 = bestHead
-                bestTail2 = bestTail
-                bestHead = temp
-                bestTail = tail
-            elif tail - temp > bestTail2 - bestHead2:
-                bestHead2 = temp
-                bestTail2 = tail
-            volume[temp: tail] = tail - temp
-    volume = volume[0: tail]
-    target_voxel = np.where(volume >= (bestTail - bestHead) * threshold)
-    F0 = np.zeros_like(F, dtype = np.bool)
-    F0[tuple(map(tuple, np.transpose(queue[target_voxel, :])))] = True
-    return F0
+    ff.post_processing(F, S, threshold, False)
+    return F
 
 
 ####################################################################################################

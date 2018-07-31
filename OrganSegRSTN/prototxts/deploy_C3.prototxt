@@ -624,28 +624,8 @@ layer {
   }
 }
 layer {
-  name: "score"
-  type: "Convolution"
-  bottom: "upscore8_cropped"
-  top: "score"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 3
-    kernel_size: 3
-    stride: 1
-    pad: 1
-  }
-}
-layer {
   name: "prob"
   type: "Sigmoid"
-  bottom: "score"
+  bottom: "upscore8_cropped"
   top: "prob"
 }

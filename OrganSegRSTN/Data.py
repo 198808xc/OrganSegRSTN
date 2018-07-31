@@ -14,7 +14,6 @@ class DataLayer(caffe.Layer):
 
     def setup(self, bottom, top):
         self.random = True
-        self.seed = 1337
         image_list = open(training_set_filename(current_fold), 'r').read().splitlines()
         self.training_image_set = np.zeros((len(image_list)), dtype = np.int)
         for i in range(len(image_list)):
@@ -44,8 +43,6 @@ class DataLayer(caffe.Layer):
             min_pixels = slice_threshold
         self.active_index = [l for l, p in enumerate(self.pixels) if p >= min_pixels]
         self.index_ = -1
-        if self.random:
-            random.seed(self.seed)
         self.next_slice_index()
 
 
@@ -93,7 +90,7 @@ class DataLayer(caffe.Layer):
 
     def load_data(self):
         if slice_thickness == 1:
-            image1 = np.load(self.image_filename[self.index1])
+            image1 = np.load(self.image_filename[self.index1]).astype(np.float32)
             label1 = np.load(self.label_filename[self.index1])
             width = label1.shape[0]
             height = label1.shape[1]
@@ -101,20 +98,18 @@ class DataLayer(caffe.Layer):
             label = label1.reshape(1, width, height)
         elif slice_thickness == 3:
             image0 = np.load(self.image_filename[self.index0])
-            image1 = np.load(self.image_filename[self.index1])
-            image2 = np.load(self.image_filename[self.index2])
-            label0 = np.load(self.label_filename[self.index0])
-            label1 = np.load(self.label_filename[self.index1])
-            label2 = np.load(self.label_filename[self.index2])
-            width = label1.shape[0]
-            height = label1.shape[1]
-            image = np.concatenate((image0.reshape(1, width, height), \
-                image1.reshape(1, width, height), image2.reshape(1, width, height)))
-            label = np.concatenate((label0.reshape(1, width, height), \
-                label1.reshape(1, width, height), label2.reshape(1, width, height)))
-        image = image.astype(np.float32)
-        image[image < low_range] = low_range
-        image[image > high_range] = high_range
-        image = (image - low_range) / (high_range - low_range)
+            width = image0.shape[0]
+            height = image0.shape[1]
+            image = np.zeros((3, width, height), dtype = np.float32)
+            image[0, ...] = image0
+            image[1, ...] = np.load(self.image_filename[self.index1])
+            image[2, ...] = np.load(self.image_filename[self.index2])
+            label = np.zeros((3, width, height), dtype = np.uint8)
+            label[0, ...] = np.load(self.label_filename[self.index0])
+            label[1, ...] = np.load(self.label_filename[self.index1])
+            label[2, ...] = np.load(self.label_filename[self.index2])
+        np.minimum(np.maximum(image, low_range, image), high_range, image)
+        image -= low_range
+        image /= (high_range - low_range)
         label = is_organ(label, organ_ID).astype(np.uint8)
         return image, label
