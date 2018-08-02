@@ -1,7 +1,9 @@
 # OrganSegRSTN: an end-to-end coarse-to-fine organ segmentation framework
 version 2.0 - Jul 31 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
 
-#### NOTE: v2.0 is a MAJOR update to v1.0, which we:
+### NOTEs:
+
+#### 1. v2.0 is a MAJOR update to v1.0, which we:
 
 (1) slightly changed network architecture (score layers are removed and change to a saliency layer),
   so that network training is more robust (especially on some tiny targets such as pancreatic cysts);
@@ -14,12 +16,15 @@ version 2.0 - Jul 31 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
 Note that our pre-trained models are also updated.
 
 
-#### **Qihang Yu and Yuyin Zhou are the main contributors to this repository.**
+#### 2. If you are more familiar with PyTorch, take a look at [https://github.com/twni2016/OrganSegRSTN_PyTorch](this repository)!
+
+
+#### 3. **Qihang Yu and Yuyin Zhou are the main contributors to this repository.**
 
 Yuyin Zhou implemented [the original coarse-to-fine framework](https://github.com/198808xc/OrganSegC2F),
 Qihang Yu improved it to allow end-to-end training, and Lingxi Xie later wrapped up these codes for release.
 
-#### If you use our codes, please cite our paper accordingly:
+#### 4. If you use our codes, please cite our paper accordingly:
 
   **Qihang Yu**, Lingxi Xie, Yan Wang, Yuyin Zhou, Elliot K. Fishman, Alan L. Yuille,
     "Recurrent Saliency Transformation Network: Incorporating Multi-Stage Visual Cues for Small Organ Segmentation",
