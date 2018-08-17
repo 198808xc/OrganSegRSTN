@@ -16,7 +16,7 @@ version 2.0 - Jul 31 2018 - by Qihang Yu, Yuyin Zhou and Lingxi Xie
 Note that our pre-trained models are also updated.
 
 
-#### 2. If you are more familiar with PyTorch, take a look at [https://github.com/twni2016/OrganSegRSTN_PyTorch](this repository)!
+#### 2. If you are more familiar with PyTorch, take a look at [https://github.com/twni2016/OrganSegRSTN_PyTorch] (this repository)!
 
 
 #### 3. **Qihang Yu and Yuyin Zhou are the main contributors to this repository.**
